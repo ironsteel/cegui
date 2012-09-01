@@ -136,13 +136,13 @@ void OpenGLESFBOTextureTarget::activate()
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &d_oldFbo);
     glBindFramebufferEXT(GL_FRAMEBUFFER_OES, d_frameBuffer);
 
-    OpenGLESRenderTarget::activate();
+    OpenGLESRenderTarget<TextureTarget>::activate();
 }
 
 //----------------------------------------------------------------------------//
 void OpenGLESFBOTextureTarget::deactivate()
 {
-    OpenGLESRenderTarget::deactivate();
+    OpenGLESRenderTarget<TextureTarget>::deactivate();
 
     // switch back to rendering to default buffer
     glBindFramebufferEXT(GL_FRAMEBUFFER_OES, d_oldFbo);
