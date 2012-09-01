@@ -62,6 +62,8 @@ public:
     void setRotation(const Quaternion& r);
     void setPivot(const Vector3f& p);
     void setClippingRegion(const Rectf& region);
+    void setClippingActive(const bool active);
+    bool isClippingActive() const;
     void appendVertex(const Vertex& vertex);
     void appendGeometry(const Vertex* const vbuff, uint vertex_count);
     void setActiveTexture(Texture* texture);
@@ -116,6 +118,8 @@ protected:
     mutable float d_matrix[16];
     //! true when d_matrix is valid and up to date
     mutable bool d_matrixValid;
+    //! Clipping flag
+    bool d_clippingActive;
 };
 
 

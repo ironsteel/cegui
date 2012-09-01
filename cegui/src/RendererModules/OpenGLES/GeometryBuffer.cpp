@@ -40,7 +40,8 @@ OpenGLESGeometryBuffer::OpenGLESGeometryBuffer() :
     d_rotation(0, 0, 0),
     d_pivot(0, 0, 0),
     d_effect(0),
-    d_matrixValid(false)
+    d_matrixValid(false),
+    d_clippingActive(true)
 {
     //d_matrix does not need to be initialised here, we have d_matrixValid
     //for(unsigned int i = 0; i < 16;++i)
@@ -127,6 +128,18 @@ void OpenGLESGeometryBuffer::setPivot(const Vector3f& p)
 void OpenGLESGeometryBuffer::setClippingRegion(const Rectf& region)
 {
     d_clipRect = region;
+}
+
+//----------------------------------------------------------------------------//
+void OpenGLESGeometryBuffer::setClippingActive(const bool active)
+{
+    d_clippingActive = active;
+}
+
+//----------------------------------------------------------------------------//
+bool OpenGLESGeometryBuffer::isClippingActive() const
+{
+    return d_clippingActive;
 }
 
 //----------------------------------------------------------------------------//
