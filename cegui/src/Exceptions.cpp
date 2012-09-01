@@ -39,7 +39,9 @@
 #if defined(_MSC_VER)
 #include <DbgHelp.h>
 #elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__HAIKU__)
+#ifndef ANDROID
 #include <execinfo.h>
+#endif
 #include <dlfcn.h>
 #include <cxxabi.h>
 #include <cstdlib>
