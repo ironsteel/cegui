@@ -1,0 +1,14 @@
+*.pc
+cmake_install.*
+Makefile
+CMakeFiles/
+CMakeCache.*
+CPack*
+lib/
+Config.h
+Version.h
+CEGUISamplesConfig.h
+systemlibs/
+*~
+*.cbp
+*.user
