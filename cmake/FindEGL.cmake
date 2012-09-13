@@ -1,5 +1,5 @@
 ################################################################################
-# Custom cmake module for CEGUI to find OpenGL ES (1.1) 
+# Custom cmake module for CEGUI to find EGL 
 #
 # Placeholder module to create some vars we can manually set.
 # Later will create a proper tests (or steal them, anyway)
