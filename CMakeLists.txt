@@ -67,6 +67,7 @@ find_package(Ogre)
 find_package(OIS)
 find_package(DirectFB)
 find_package(OpenGLES)
+find_package(EGL)
 
 find_package(EXPAT)
 find_package(XercesC)
