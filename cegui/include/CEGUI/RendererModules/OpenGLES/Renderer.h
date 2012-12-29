@@ -103,7 +103,7 @@ public:
     \return
         Reference to the CEGUI::OpenGLESRenderer object that was created.
     */
-    static OpenGLESRenderer& bootstrapSystem(
+    static OpenGLESRenderer& bootstrapSystem(ResourceProvider *prov,
                                 const TextureTargetType tt_type = TTT_AUTO,
                                 const int abi = CEGUI_VERSION_ABI);
 

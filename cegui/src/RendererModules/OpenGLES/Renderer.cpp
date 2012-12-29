@@ -93,7 +93,7 @@ String OpenGLESRenderer::d_rendererID(
 "CEGUI::OpenGLESRenderer - Official OpenGLES based 2nd generation renderer module.");
 
 //----------------------------------------------------------------------------//
-OpenGLESRenderer& OpenGLESRenderer::bootstrapSystem(
+OpenGLESRenderer& OpenGLESRenderer::bootstrapSystem(ResourceProvider* rp,
                                         const TextureTargetType tt_type,
                                         const int abi)
 {
@@ -104,13 +104,13 @@ OpenGLESRenderer& OpenGLESRenderer::bootstrapSystem(
             "CEGUI::System object is already initialised."));
 
     OpenGLESRenderer& renderer(create(tt_type));
-    DefaultResourceProvider* rp = new CEGUI::DefaultResourceProvider();
     System::create(renderer, rp);
 
     return renderer;
 }
 
 //----------------------------------------------------------------------------//
+
 OpenGLESRenderer& OpenGLESRenderer::bootstrapSystem(
                                         const Sizef& display_size,
                                         const TextureTargetType tt_type,
