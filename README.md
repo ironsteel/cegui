@@ -2,7 +2,8 @@
 
 ## Building instructions for android (linux as a host)
 
-1. Clone this repo and checkout android-port branch
+
+1. Clone this repo and checkout android-port branch and make sure you have CMake installed
 2. Open the [dependencies repo](https://github.com/ironsteel/cegui-android-deps-prebuild) in a browser and download it as a zip file
 3. Extract the zip file somewhere and then copy the *dependencies* dir to the cegui root dir
 4. Download the android ndk for linux from [this link](http://dl.google.com/android/ndk/android-ndk-r8d-linux-x86.tar.bz2) and extract it somewhere.
