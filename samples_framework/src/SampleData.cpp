@@ -56,12 +56,12 @@ SampleData::SampleData(CEGUI::String sampleName, CEGUI::String summary,
     d_summary(summary),
     d_description(description),
     d_type(sampleTypeEnum),
+    d_usedFilesString(""),
     d_credits(credits),
+    d_sampleWindow(0),
     d_guiContext(0),
     d_textureTarget(0),
-    d_textureTargetImage(0),
-    d_sampleWindow(0),
-    d_usedFilesString("")
+    d_textureTargetImage(0)
 {
 }
 
@@ -242,10 +242,7 @@ void SampleDataModule::deinitialise()
 
 void SampleDataModule::getSampleInstanceFromDLL()
 {
-    // Version suffix for the dlls
-    static const CEGUI::String versionSuffix( "-" STRINGIZE(CEGUI_VERSION_MAJOR) "." STRINGIZE(CEGUI_VERSION_MINOR) );
-
-    CEGUI::DynamicModule* sampleModule = new CEGUI::DynamicModule(d_name + versionSuffix);
+    CEGUI::DynamicModule* sampleModule = new CEGUI::DynamicModule(d_name);
     getSampleInstance functionPointerGetSample = (getSampleInstance)sampleModule->getSymbolAddress(CEGUI::String(GetSampleInstanceFuncName));
 
     if(functionPointerGetSample == 0)

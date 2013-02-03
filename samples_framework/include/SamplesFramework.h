@@ -41,7 +41,6 @@ class Sample;
 class MetaDataWindowManager;
 class SamplesBrowserManager;
 
-using namespace CEGUI;
 
 /*!
 \brief
@@ -50,15 +49,17 @@ This is
 class SamplesFramework : public SamplesFrameworkBase
 {
 public:
-    SamplesFramework();
+    SamplesFramework(const CEGUI::String& xml_filename);
     virtual ~SamplesFramework();
 
-    static void setDefaultResourceGroup(const String& resourceGroup);
+    static void setDefaultResourceGroup(const CEGUI::String& resourceGroup);
 
     bool initialise();
     void deinitialise();
 
-    void addSampleDataCppModule(CEGUI::String sampleName, CEGUI::String summary, CEGUI::String description, SampleType sampleTypeEnum, CEGUI::String credits);
+    void addSampleDataCppModule(CEGUI::String sampleName, CEGUI::String summary,
+                                CEGUI::String description,
+                                SampleType sampleTypeEnum, CEGUI::String credits);
 
     void handleSampleSelection(CEGUI::Window* sampleWindow);
     void handleStartDisplaySample(CEGUI::Window* sampleWindow);
@@ -79,13 +80,13 @@ public:
     virtual bool injectMouseWheelChange(float position);
     virtual bool injectMousePosition(float x, float y);
 
-    static const String XMLSchemaName;
+    static const CEGUI::String XMLSchemaName;
 
 protected:
     void initialiseLoadScreenLayout();
 
     void initialiseSampleBrowserLayout();
-    void loadSamplesDataFromXML(const String& filename);
+    void loadSamplesDataFromXML(const CEGUI::String& filename);
     void getSampleInstanceFromDLL(SampleData& sampleData);
 
     void addSample(SampleData* sampleData);
@@ -123,7 +124,8 @@ protected:
     CEGUI::Window*              d_loadScreenChunkProgressText;
 
     bool                        d_quittingSampleView;
+
+    CEGUI::String d_samplesXMLFilename;
 };
 
 #endif
-
