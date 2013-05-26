@@ -26,7 +26,6 @@
  *   OTHER DEALINGS IN THE SOFTWARE.
  ***************************************************************************/
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE CEGUITests
 
 #include <boost/test/unit_test.hpp>
@@ -48,6 +47,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// If this looks wanky, it's becase it is!  Behold that this is not as fullblown
+// as it could be though.
+// Copied from samples_framework/include/CEGuiBaseApplication.h
+#ifndef PATH_MAX
+#   include <stdlib.h>
+#   ifndef PATH_MAX
+#       include <limits.h>
+#   endif
+#   ifndef PATH_MAX
+#      ifdef _MAX_PATH
+#           define PATH_MAX _MAX_PATH
+#       else
+#           define PATH_MAX 260
+#       endif
+#   endif
+#endif
 
 #ifdef __APPLE__
 #   include <Carbon/Carbon.h>

@@ -147,7 +147,7 @@ if (CEGUI_HAS_BUILD_SUFFIX AND CEGUI_BUILD_SUFFIX)
     )
 endif()
 
-if (NOT APPLE)
+if (NOT APPLE AND CEGUI_INSTALL_WITH_RPATH)
     set_target_properties(${CEGUI_TARGET_NAME} PROPERTIES
         INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CEGUI_LIB_INSTALL_DIR}"
     )
@@ -203,20 +203,13 @@ endif()
 if (CEGUI_SAMPLES_USE_OPENGL OR CEGUI_SAMPLES_USE_OPENGL3)
     cegui_add_dependency(${CEGUI_TARGET_NAME} OPENGL)
     cegui_add_dependency(${CEGUI_TARGET_NAME} GLFW)
-endif()
-
-if (CEGUI_SAMPLES_USE_OPENGL)
     cegui_target_link_libraries(${CEGUI_TARGET_NAME} ${CEGUI_OPENGL_RENDERER_LIBNAME})
-endif()
-
-if (CEGUI_SAMPLES_USE_OPENGL3)
-    cegui_target_link_libraries(${CEGUI_TARGET_NAME} ${CEGUI_OPENGL3_RENDERER_LIBNAME})
 endif()
 
 if (CEGUI_SAMPLES_USE_OGRE)
     cegui_add_dependency(${CEGUI_TARGET_NAME} OGRE)
     cegui_add_dependency(${CEGUI_TARGET_NAME} OIS)
-    cegui_target_link_libraries(${CEGUI_TARGET_NAME} ${CEGUI_OGRE_RENDERER_LIBNAME})
+    cegui_target_link_libraries(${CEGUI_TARGET_NAME} ${CEGUI_OGRE_RENDERER_LIBNAME} ${CEGUI_OGRE_SAMPLES_EXTRALIBS})
 endif()
 
 if (CEGUI_SAMPLES_USE_IRRLICHT)

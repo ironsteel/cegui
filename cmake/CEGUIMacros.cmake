@@ -182,7 +182,8 @@ endmacro()
 macro (cegui_add_library_impl _LIB_NAME _IS_MODULE _SOURCE_FILES_VAR _HEADER_FILES_VAR _INSTALL_BIN _INSTALL_HEADERS)
     file (RELATIVE_PATH _REL_SRC_DIR "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
     string (REPLACE src include _REL_INC_DIR ${_REL_SRC_DIR})
-    string(TOUPPER ${_LIB_NAME} _CEGUI_EXPORT_DEFINE)
+    string(REGEX MATCH "^[^-]*" _CEGUI_EXPORT_BASE ${_LIB_NAME})
+    string(TOUPPER ${_CEGUI_EXPORT_BASE}_EXPORTS _CEGUI_EXPORT_DEFINE)
 
     include_directories("${CMAKE_SOURCE_DIR}/${_REL_INC_DIR}")
 
@@ -200,7 +201,7 @@ macro (cegui_add_library_impl _LIB_NAME _IS_MODULE _SOURCE_FILES_VAR _HEADER_FIL
     #                       SHARED LIBRARY SET UP
     ###########################################################################
     add_library(${_LIB_NAME} ${_LIB_TYPE} ${${_SOURCE_FILES_VAR}} ${${_HEADER_FILES_VAR}})
-    set_target_properties(${_LIB_NAME} PROPERTIES DEFINE_SYMBOL ${_CEGUI_EXPORT_DEFINE}_EXPORTS)
+    set_target_properties(${_LIB_NAME} PROPERTIES DEFINE_SYMBOL ${_CEGUI_EXPORT_DEFINE})
 
     if (NOT CEGUI_BUILD_SHARED_LIBS_WITH_STATIC_DEPENDENCIES)
         set_target_properties(${_LIB_NAME} PROPERTIES
@@ -220,7 +221,7 @@ macro (cegui_add_library_impl _LIB_NAME _IS_MODULE _SOURCE_FILES_VAR _HEADER_FIL
             set_target_properties(${_LIB_NAME} PROPERTIES SUFFIX ".dylib")
         endif()
 
-    else()
+    elseif(CEGUI_INSTALL_WITH_RPATH)
         set_target_properties(${_LIB_NAME} PROPERTIES
             INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CEGUI_LIB_INSTALL_DIR}"
         )
@@ -233,7 +234,7 @@ macro (cegui_add_library_impl _LIB_NAME _IS_MODULE _SOURCE_FILES_VAR _HEADER_FIL
         if (NOT APPLE OR CEGUI_APPLE_DYLIB_SET_VERSION_INFO)
             set_target_properties(${_LIB_NAME} PROPERTIES
                 VERSION ${CEGUI_ABI_VERSION}
-                SOVERSION ${CEGUI_ABI_CURRENT}
+                SOVERSION ${CEGUI_SOVERSION}
             )
         endif()
     endif()
@@ -242,9 +243,15 @@ macro (cegui_add_library_impl _LIB_NAME _IS_MODULE _SOURCE_FILES_VAR _HEADER_FIL
     #                           INSTALLATION
     ###########################################################################
     if (${_INSTALL_BIN})
+        if (${_IS_MODULE})
+            set(_CEGUI_LIB_DEST ${CEGUI_MODULE_INSTALL_DIR})
+        else()
+            set(_CEGUI_LIB_DEST ${CEGUI_LIB_INSTALL_DIR})
+        endif()
+
         install(TARGETS ${_LIB_NAME}
             RUNTIME DESTINATION bin
-            LIBRARY DESTINATION ${CEGUI_LIB_INSTALL_DIR}
+            LIBRARY DESTINATION ${_CEGUI_LIB_DEST}
             ARCHIVE DESTINATION ${CEGUI_LIB_INSTALL_DIR}
         )
 
@@ -259,7 +266,7 @@ macro (cegui_add_library_impl _LIB_NAME _IS_MODULE _SOURCE_FILES_VAR _HEADER_FIL
 
     if (${_INSTALL_HEADERS})
         string (REPLACE "cegui/src/" "" _REL_HEADER_DIR ${_REL_SRC_DIR})
-        install(FILES ${${_HEADER_FILES_VAR}} DESTINATION "${CEGUI_INCLUDE_INSTALL_DIR}/${CMAKE_PROJECT_NAME}/${_REL_HEADER_DIR}")
+        install(FILES ${${_HEADER_FILES_VAR}} DESTINATION "${CEGUI_INCLUDE_INSTALL_DIR}/CEGUI/${_REL_HEADER_DIR}")
     endif()
 endmacro()
 
@@ -356,7 +363,22 @@ macro (cegui_add_sample _NAME)
 	)
     
     # Each demo will become a dynamically linked library as plugin (module)
-    cegui_add_library_impl(${CEGUI_TARGET_NAME} TRUE CORE_SOURCE_FILES CORE_HEADER_FILES TRUE FALSE)
+    cegui_add_library_impl(${CEGUI_TARGET_NAME} TRUE CORE_SOURCE_FILES CORE_HEADER_FILES FALSE FALSE)
+
+    # Setup custom install location
+    install(TARGETS ${CEGUI_TARGET_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION ${CEGUI_SAMPLE_INSTALL_DIR}
+        ARCHIVE DESTINATION ${CEGUI_SAMPLE_INSTALL_DIR}
+    )
+
+    if (CEGUI_BUILD_STATIC_CONFIGURATION)
+        install(TARGETS ${CEGUI_TARGET_NAME}_Static
+            RUNTIME DESTINATION bin
+            LIBRARY DESTINATION ${CEGUI_SAMPLE_INSTALL_DIR}
+            ARCHIVE DESTINATION ${CEGUI_SAMPLE_INSTALL_DIR}
+        )
+    endif()
 
     add_dependencies(${CEGUI_SAMPLEFRAMEWORK_EXENAME} ${CEGUI_TARGET_NAME})
 
@@ -382,14 +404,14 @@ macro( cegui_add_python_module PYTHON_MODULE_NAME SOURCE_DIR EXTRA_LIBS )
     include_directories(BEFORE ${SOURCE_DIR})
 
     add_library(${PYTHON_MODULE_NAME} MODULE ${${PYTHON_MODULE_NAME}_SOURCE_FILES})
-    target_link_libraries(${PYTHON_MODULE_NAME} ${CEGUI_BASE_LIBNAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${EXTRA_LIBS} )
+    target_link_libraries(${PYTHON_MODULE_NAME} ${CEGUI_BASE_LIBNAME} ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES} ${EXTRA_LIBS} )
     set_target_properties(${PYTHON_MODULE_NAME} PROPERTIES PREFIX "")
 
     if (WIN32)
         set_target_properties(${PYTHON_MODULE_NAME} PROPERTIES SUFFIX ".pyd")
     endif()
 
-    if (NOT APPLE)
+    if (NOT APPLE AND CEGUI_INSTALL_WITH_RPATH)
         set_target_properties(${PYTHON_MODULE_NAME} PROPERTIES
             INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CEGUI_LIB_INSTALL_DIR}"
         )
@@ -406,7 +428,7 @@ endmacro()
 # Define a CEGUI test executable
 #
 macro (cegui_add_test_executable _NAME)
-    set (CEGUI_TARGET_NAME ${_NAME}${CEGUI_SLOT_VERSION})
+    set (CEGUI_TARGET_NAME ${_NAME}-${CEGUI_VERSION_MAJOR}.${CEGUI_VERSION_MINOR})
 
     cegui_gather_files()
 
@@ -441,7 +463,12 @@ macro (cegui_add_test_executable _NAME)
         )
     endif()
 
-    if (NOT APPLE)
+    # set boost to use dynamic linking
+    if (NOT CEGUI_BUILD_STATIC_CONFIGURATION)
+        add_definitions( -DBOOST_TEST_DYN_LINK )
+    endif()
+
+    if (NOT APPLE AND CEGUI_INSTALL_WITH_RPATH)
         set_target_properties(${CEGUI_TARGET_NAME} PROPERTIES
             INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CEGUI_LIB_INSTALL_DIR}"
         )
@@ -453,7 +480,7 @@ macro (cegui_add_test_executable _NAME)
     cegui_target_link_libraries(${CEGUI_TARGET_NAME}
         ${CEGUI_BASE_LIBNAME}
         ${CEGUI_NULL_RENDERER_LIBNAME}
-        boost_unit_test_framework # FIXME: Not portable!
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     )
 
     if (CEGUI_BUILD_STATIC_CONFIGURATION)
@@ -499,8 +526,9 @@ endmacro()
 macro (cegui_dependent_option OPTIONNAME DESC DEPS)
     set (${OPTIONNAME}_DEFAULT TRUE)
     foreach (DEP ${DEPS})
+        string(REGEX REPLACE " +" ";" _DEP "${DEP}")
         # Don't use NOT here, because conditions like 'NOT NOT foo' will break
-        if (${${DEP}})
+        if (${_DEP})
         else()
             set (${OPTIONNAME}_DEFAULT FALSE)
         endif()
@@ -578,5 +606,56 @@ macro (cegui_find_package_handle_standard_args _PKGNAME _LIBBASENAMEVAR)
     endif()
 
     find_package_handle_standard_args(${_PKGNAME} DEFAULT_MSG ${_FPHSA_LIBS} ${ARGN})
+endmacro()
+
+################################################################################
+# Declare a library (not loadable module) name
+#
+# This is used to name things in a consistent way and allow us to change the way
+# things are named without editing lots of stuff (and forgetting some things or
+# changing some other things that should not be changed)
+################################################################################
+macro(cegui_set_library_name _VARIABLE _LIBBASENAME)
+    set(${_VARIABLE} ${_LIBBASENAME}-${CEGUI_VERSION_MAJOR})
+endmacro()
+
+################################################################################
+# Declare an executable name
+#
+# This is used to name things in a consistent way and allow us to change the way
+# things are named without editing lots of stuff (and maybe forgetting some)
+################################################################################
+macro(cegui_set_executable_name _VARIABLE _EXEBASENAME)
+    set(${_VARIABLE} ${_EXEBASENAME}-${CEGUI_VERSION_MAJOR}.${CEGUI_VERSION_MINOR})
+endmacro()
+
+################################################################################
+# Declare a loadable module name
+#
+# This is used to name things in a consistent way and allow us to change the way
+# things are named without editing lots of stuff (and maybe forgetting some)
+################################################################################
+macro(cegui_set_module_name _VARIABLE _MODULEBASENAME)
+    set(${_VARIABLE} ${_MODULEBASENAME})
+endmacro()
+
+################################################################################
+# Sanity check for Default ImageCodec (i.e. is it going to be built?)
+################################################################################
+macro(cegui_defaultmodule_sanity_test _DEFAULTVAR _MODNAME _BUILDVAR)
+    if (${_DEFAULTVAR} STREQUAL "${_MODNAME}")
+        if (NOT ${_BUILDVAR})
+            message(SEND_ERROR "${_DEFAULTVAR} is set to ${_MODNAME} but this module is not going to be built (see ${_BUILDVAR})")
+        endif()
+    endif()
+endmacro()
+
+################################################################################
+# Sanity check regarding renderers being built vs being used in samples
+################################################################################
+macro(cegui_sample_renderer_sanity_test _RENDERERVAR _SAMPLEUSEVAR)
+    if (${_SAMPLEUSEVAR} AND NOT ${_RENDERERVAR})
+        message(SEND_ERROR "${_SAMPLEUSEVAR} is enabled, but corresponding renderer is not going to be built (see: ${_RENDERERVAR})")
+    endif()
 endmacro()
 
