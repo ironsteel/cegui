@@ -203,7 +203,7 @@ void OpenGLESTexture::loadCompressedTextureBuffer(const Sizef& buffer_size,
 }
 
 //----------------------------------------------------------------------------//
-GLsizei getCompressedTextureSize(const Sizef& pixel_size) const
+GLsizei OpenGLESTexture::getCompressedTextureSize(const Sizef& pixel_size) const
 {
     // Calculate buffer size in bytes
     GLsizei image_space = 
@@ -225,10 +225,15 @@ void OpenGLESTexture::blitFromMemory(const void* sourceData, const Rectf& area)
     // do the real work of getting the data into the texture
     glBindTexture(GL_TEXTURE_2D, d_ogltexture);
 
+	Sizef size;
+	size.d_width = area.getWidth();
+	size.d_height = area.getHeight();
+	
+	
     if (d_isCompressed)
-        loadCompressedTextureBuffer(area, sourceData);
+        loadCompressedTextureBuffer(size, sourceData);
     else
-        loadUncompressedTextureBuffer(area, sourceData);
+        loadUncompressedTextureBuffer(size, sourceData);
 
     // restore previous texture binding.
     glBindTexture(GL_TEXTURE_2D, old_tex);

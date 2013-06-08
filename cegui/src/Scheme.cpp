@@ -276,7 +276,7 @@ void Scheme::loadWindowFactories()
             // get the WindowRendererModule object for this module.
             (*cmod).factoryModule = &getWindowFactoryModuleFunc();
 #else
-            (*cmod).factoryModule = &getWindowFactoryModule();
+     //       (*cmod).factoryModule = &getWindowFactoryModule();
 #endif
         }
 
